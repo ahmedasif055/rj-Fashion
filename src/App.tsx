@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Toaster, toast } from "react-hot-toast";
 
 import Navbar from "./Navbar";
@@ -6,17 +6,32 @@ import Hero from "./Hero";
 import Card from "./Card";
 import Footer from "./Footer";
 
-const App = () => {
-  const [cart, setCart] = useState([]);
-  const [favorites, setFavorites] = useState([]);
-  const [search, setSearch] = useState("");
-  const [cartOpen, setCartOpen] = useState(false);
-  const [mobileMenu, setMobileMenu] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState(null);
+interface IProduct {
+  _id: string;
+  title: string;
+  image: string;
+  price: number;
+  category?: string;
+  description?: string;
+  oldPrice?: number;
+  brand?: string;
+  stock?: number | string;
+}
+
+interface ICartItem extends IProduct {
+  quantity: number;
+}
+
+const App: React.FC = () => {
+  const [cart, setCart] = useState<ICartItem[]>([]);
+  const [favorites, setFavorites] = useState<IProduct[]>([]);
+  const [search, setSearch] = useState<string>("");
+  const [cartOpen, setCartOpen] = useState<boolean>(false);
+  const [mobileMenu, setMobileMenu] = useState<boolean>(false);
+  const [selectedProduct, setSelectedProduct] = useState<IProduct | null>(null);
 
   // ================= ADD TO CART =================
-
-  const addToCart = (product) => {
+  const addToCart = (product: IProduct): void => {
     setCart((currentCart) => {
       const existingProduct = currentCart.find(
         (item) => item._id === product._id
@@ -47,18 +62,13 @@ const App = () => {
   };
 
   // ================= REMOVE =================
-
-  const removeFromCart = (id) => {
-    setCart((currentCart) =>
-      currentCart.filter((item) => item._id !== id)
-    );
-
+  const removeFromCart = (id: string): void => {
+    setCart((currentCart) => currentCart.filter((item) => item._id !== id));
     toast.success("Product removed from cart");
   };
 
   // ================= INCREASE =================
-
-  const increaseQuantity = (id) => {
+  const increaseQuantity = (id: string): void => {
     setCart((currentCart) =>
       currentCart.map((item) =>
         item._id === id
@@ -72,8 +82,7 @@ const App = () => {
   };
 
   // ================= DECREASE =================
-
-  const decreaseQuantity = (id) => {
+  const decreaseQuantity = (id: string): void => {
     setCart((currentCart) =>
       currentCart
         .map((item) =>
@@ -89,40 +98,33 @@ const App = () => {
   };
 
   // ================= FAVORITE =================
-
-  const toggleFavorite = (product) => {
-    const alreadyFavorite = favorites.some(
-      (item) => item._id === product._id
-    );
+  const toggleFavorite = (product: IProduct): void => {
+    const alreadyFavorite = favorites.some((item) => item._id === product._id);
 
     if (alreadyFavorite) {
       setFavorites((current) =>
         current.filter((item) => item._id !== product._id)
       );
-
       toast("Removed from favorites");
     } else {
       setFavorites((current) => [...current, product]);
-
       toast.success("Added to favorites ❤️");
     }
   };
 
   // ================= CART TOTAL =================
-
-  const cartCount = cart.reduce(
+  const cartCount: number = cart.reduce(
     (total, item) => total + item.quantity,
     0
   );
 
-  const cartTotal = cart.reduce(
+  const cartTotal: number = cart.reduce(
     (total, item) => total + Number(item.price) * item.quantity,
     0
   );
 
   // ================= SEARCH =================
-
-  const filteredProducts = useMemo(() => {
+  const filteredProducts: string = useMemo(() => {
     return search;
   }, [search]);
 
@@ -160,13 +162,12 @@ const App = () => {
         addToCart={addToCart}
         toggleFavorite={toggleFavorite}
         favorites={favorites}
-        setSelectedProduct={setSelectedProduct}
+        setSelectedProduct={(product: any) => setSelectedProduct(product)}
       />
 
       <Footer />
 
       {/* ================= CART DRAWER ================= */}
-
       {cartOpen && (
         <>
           <div
@@ -175,18 +176,14 @@ const App = () => {
           />
 
           <div className="fixed right-0 top-0 z-[90] flex h-full w-full max-w-md flex-col border-l border-purple-500/20 bg-[#0d0719] shadow-2xl shadow-purple-950/50">
-            
             {/* Cart Header */}
-
             <div className="flex items-center justify-between border-b border-white/10 px-6 py-5">
               <div>
                 <p className="text-xs uppercase tracking-[0.25em] text-purple-400">
                   Your Shopping
                 </p>
 
-                <h2 className="mt-1 text-2xl font-black">
-                  Cart
-                </h2>
+                <h2 className="mt-1 text-2xl font-black">Cart</h2>
               </div>
 
               <button
@@ -198,7 +195,6 @@ const App = () => {
             </div>
 
             {/* Cart Products */}
-
             <div className="flex-1 overflow-y-auto p-5">
               {cart.length === 0 ? (
                 <div className="flex h-full flex-col items-center justify-center text-center">
@@ -206,9 +202,7 @@ const App = () => {
                     🛒
                   </div>
 
-                  <h3 className="text-xl font-bold">
-                    Your cart is empty
-                  </h3>
+                  <h3 className="text-xl font-bold">Your cart is empty</h3>
 
                   <p className="mt-2 max-w-xs text-sm leading-6 text-slate-500">
                     Add some beautiful products to your cart and they will
@@ -218,11 +212,9 @@ const App = () => {
                   <button
                     onClick={() => {
                       setCartOpen(false);
-                      document
-                        .getElementById("products")
-                        ?.scrollIntoView({
-                          behavior: "smooth",
-                        });
+                      document.getElementById("products")?.scrollIntoView({
+                        behavior: "smooth",
+                      });
                     }}
                     className="mt-6 rounded-xl bg-gradient-to-r from-purple-600 to-fuchsia-600 px-6 py-3 text-sm font-bold shadow-lg shadow-purple-900/30 transition hover:scale-105"
                   >
@@ -255,9 +247,7 @@ const App = () => {
                           <div className="mt-3 flex items-center justify-between">
                             <div className="flex items-center rounded-lg border border-white/10">
                               <button
-                                onClick={() =>
-                                  decreaseQuantity(product._id)
-                                }
+                                onClick={() => decreaseQuantity(product._id)}
                                 className="h-8 w-8 text-slate-400 hover:text-white"
                               >
                                 −
@@ -268,9 +258,7 @@ const App = () => {
                               </span>
 
                               <button
-                                onClick={() =>
-                                  increaseQuantity(product._id)
-                                }
+                                onClick={() => increaseQuantity(product._id)}
                                 className="h-8 w-8 text-slate-400 hover:text-white"
                               >
                                 +
@@ -278,9 +266,7 @@ const App = () => {
                             </div>
 
                             <button
-                              onClick={() =>
-                                removeFromCart(product._id)
-                              }
+                              onClick={() => removeFromCart(product._id)}
                               className="text-xs font-semibold text-red-400 transition hover:text-red-300"
                             >
                               Remove
@@ -295,13 +281,10 @@ const App = () => {
             </div>
 
             {/* Cart Bottom */}
-
             {cart.length > 0 && (
               <div className="border-t border-white/10 bg-[#10081d] p-6">
                 <div className="mb-5 flex items-center justify-between">
-                  <span className="text-sm text-slate-500">
-                    Total
-                  </span>
+                  <span className="text-sm text-slate-500">Total</span>
 
                   <span className="text-3xl font-black">
                     ${cartTotal.toFixed(2)}
@@ -323,11 +306,9 @@ const App = () => {
       )}
 
       {/* ================= PRODUCT MODAL ================= */}
-
       {selectedProduct && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-5 backdrop-blur-md">
           <div className="relative max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-[30px] border border-purple-500/20 bg-[#10081d] shadow-2xl shadow-purple-950/50">
-            
             <button
               onClick={() => setSelectedProduct(null)}
               className="absolute right-5 top-5 z-20 flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-black/50 text-xl text-white backdrop-blur-xl transition hover:bg-red-500/20 hover:text-red-400"
@@ -336,7 +317,6 @@ const App = () => {
             </button>
 
             <div className="grid md:grid-cols-2">
-              
               <div className="relative h-[400px] md:h-[550px]">
                 <img
                   src={selectedProduct.image}
@@ -374,18 +354,14 @@ const App = () => {
 
                 <div className="mt-7 grid grid-cols-2 gap-3">
                   <div className="rounded-xl border border-white/10 bg-white/5 p-4">
-                    <p className="text-xs text-slate-600">
-                      Brand
-                    </p>
+                    <p className="text-xs text-slate-600">Brand</p>
                     <p className="mt-1 font-bold">
                       {selectedProduct.brand || "Premium"}
                     </p>
                   </div>
 
                   <div className="rounded-xl border border-white/10 bg-white/5 p-4">
-                    <p className="text-xs text-slate-600">
-                      Stock
-                    </p>
+                    <p className="text-xs text-slate-600">Stock</p>
                     <p className="mt-1 font-bold text-emerald-400">
                       {selectedProduct.stock || "Available"}
                     </p>

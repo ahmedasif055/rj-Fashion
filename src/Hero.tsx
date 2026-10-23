@@ -1,202 +1,305 @@
-const Hero = ({ setSearch, setCartOpen }) => {
-  const scrollToProducts = () => {
+import { useEffect, useState } from "react";
+import type { Dispatch, SetStateAction } from "react";
+
+interface NavbarProps {
+  cartCount: number;
+  favoriteCount: number;
+  search: string;
+  setSearch: Dispatch<SetStateAction<string>>;
+  setCartOpen: Dispatch<SetStateAction<boolean>>;
+  mobileMenu: boolean;
+  setMobileMenu: Dispatch<SetStateAction<boolean>>;
+}
+
+const Navbar = ({
+  cartCount,
+  favoriteCount,
+  search,
+  setSearch,
+  setCartOpen,
+  mobileMenu,
+  setMobileMenu,
+}: NavbarProps) => {
+  const [searchOpen, setSearchOpen] = useState(false);
+
+  useEffect(() => {
+    const closeSearch = (e: MouseEvent) => {
+      if (!(e.target instanceof Element) || !e.target.closest(".search-area")) {
+        setSearchOpen(false);
+      }
+    };
+
+    document.addEventListener("click", closeSearch);
+
+    return () => {
+      document.removeEventListener("click", closeSearch);
+    };
+  }, []);
+
+  const scrollTo = (id: string) => {
     document
-      .getElementById("products")
+      .getElementById(id)
       ?.scrollIntoView({ behavior: "smooth" });
+
+    setMobileMenu(false);
   };
 
-  const searchFashion = () => {
-    setSearch("fashion");
+  return (
+    <nav className="sticky top-0 z-50 px-4 py-4">
+      <div className="mx-auto max-w-[90%]">
 
-    setTimeout(() => {
-      scrollToProducts();
-    }, 100);
+        <div className="relative flex items-center justify-between rounded-2xl border border-purple-500/20 bg-[#12091f]/95 px-5 py-4 shadow-xl shadow-purple-950/30 backdrop-blur-xl md:px-8">
+
+          {/* LOGO */}
+
+          <button
+            onClick={() => scrollTo("home")}
+            className="group flex items-center gap-3"
+          >
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-purple-600 to-fuchsia-600 text-xl shadow-lg shadow-purple-500/20 transition duration-300 group-hover:rotate-6 group-hover:scale-110">
+              🛍️
+            </div>
+
+            <div className="text-left">
+              <h1 className="text-xl font-black tracking-wide text-white">
+                VELORA
+              </h1>
+
+              <p className="text-[8px] font-bold tracking-[0.3em] text-purple-400">
+                PREMIUM STORE
+              </p>
+            </div>
+          </button>
+
+          {/* DESKTOP MENU */}
+
+          <div className="hidden items-center gap-2 md:flex">
+            <button
+              onClick={() => scrollTo("home")}
+              className="rounded-xl px-4 py-2 text-sm font-semibold text-slate-400 transition hover:bg-purple-500/10 hover:text-purple-300"
+            >
+              Home
+            </button>
+
+            <button
+              onClick={() => scrollTo("products")}
+              className="rounded-xl px-4 py-2 text-sm font-semibold text-slate-400 transition hover:bg-purple-500/10 hover:text-purple-300"
+            >
+              Products
+            </button>
+
+            <button
+              onClick={() => scrollTo("collection")}
+              className="rounded-xl px-4 py-2 text-sm font-semibold text-slate-400 transition hover:bg-purple-500/10 hover:text-purple-300"
+            >
+              Collection
+            </button>
+
+            <button
+              onClick={() => scrollTo("about")}
+              className="rounded-xl px-4 py-2 text-sm font-semibold text-slate-400 transition hover:bg-purple-500/10 hover:text-purple-300"
+            >
+              About
+            </button>
+          </div>
+
+          {/* RIGHT SIDE */}
+
+          <div className="flex items-center gap-2">
+
+            {/* SEARCH */}
+
+            <div className="search-area relative">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSearchOpen(!searchOpen);
+                }}
+                className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-lg text-slate-400 transition hover:scale-110 hover:bg-purple-500/10 hover:text-purple-300"
+              >
+                🔍
+              </button>
+
+              {searchOpen && (
+                <div className="absolute right-0 top-14 w-72 rounded-2xl border border-purple-500/20 bg-[#12091f] p-3 shadow-2xl shadow-purple-950/50">
+                  <input
+                    autoFocus
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    placeholder="Search products..."
+                    className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-600 focus:border-purple-500/50"
+                  />
+
+                  {search && (
+                    <button
+                      onClick={() => setSearch("")}
+                      className="mt-2 text-xs text-purple-400 hover:text-purple-300"
+                    >
+                      Clear search
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* FAVORITE */}
+
+            <button
+              type="button"
+              className="relative hidden h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-lg text-slate-400 transition hover:scale-110 hover:bg-pink-500/10 hover:text-pink-400 sm:flex"
+            >
+              ♡
+
+              {favoriteCount > 0 && (
+                <span className="absolute -right-2 -top-2 flex h-5 min-w-5 items-center justify-center rounded-full border-2 border-[#12091f] bg-pink-500 px-1 text-[10px] font-black text-white">
+                  {favoriteCount}
+                </span>
+              )}
+            </button>
+
+            {/* CART */}
+
+            <button
+              onClick={() => setCartOpen(true)}
+              className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-purple-600 to-fuchsia-600 text-lg text-white shadow-lg shadow-purple-900/30 transition hover:scale-110 active:scale-95"
+            >
+              🛒
+
+              <span className="absolute -right-2 -top-2 flex h-5 min-w-5 items-center justify-center rounded-full border-2 border-[#12091f] bg-white px-1 text-[10px] font-black text-purple-700">
+                {cartCount}
+              </span>
+            </button>
+
+            {/* MOBILE BUTTON */}
+
+            <button
+              onClick={() => setMobileMenu(!mobileMenu)}
+              className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-xl text-slate-300 transition hover:bg-purple-500/10 hover:text-purple-300 md:hidden"
+            >
+              {mobileMenu ? "×" : "☰"}
+            </button>
+          </div>
+
+          {/* MOBILE MENU */}
+
+          {mobileMenu && (
+            <div className="absolute left-0 right-0 top-[78px] rounded-2xl border border-purple-500/20 bg-[#12091f] p-4 shadow-2xl shadow-purple-950/50 md:hidden">
+              <div className="grid gap-2">
+                <button
+                  onClick={() => scrollTo("home")}
+                  className="rounded-xl px-4 py-3 text-left text-sm font-semibold text-slate-300 hover:bg-purple-500/10 hover:text-purple-300"
+                >
+                  Home
+                </button>
+
+                <button
+                  onClick={() => scrollTo("products")}
+                  className="rounded-xl px-4 py-3 text-left text-sm font-semibold text-slate-300 hover:bg-purple-500/10 hover:text-purple-300"
+                >
+                  Products
+                </button>
+
+                <button
+                  onClick={() => scrollTo("collection")}
+                  className="rounded-xl px-4 py-3 text-left text-sm font-semibold text-slate-300 hover:bg-purple-500/10 hover:text-purple-300"
+                >
+                  Collection
+                </button>
+
+                <button
+                  onClick={() => scrollTo("about")}
+                  className="rounded-xl px-4 py-3 text-left text-sm font-semibold text-slate-300 hover:bg-purple-500/10 hover:text-purple-300"
+                >
+                  About
+                </button>
+
+                <button
+                  onClick={() => {
+                    setCartOpen(true);
+                    setMobileMenu(false);
+                  }}
+                  className="mt-2 rounded-xl bg-gradient-to-r from-purple-600 to-fuchsia-600 px-4 py-3 text-sm font-bold"
+                >
+                  Open Cart 🛒 ({cartCount})
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </nav>
+  );
+};
+
+export { Navbar };
+
+import React from "react";
+
+interface HeroProps {
+  setSearch: React.Dispatch<React.SetStateAction<string>>;
+  setCartOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+const Hero: React.FC<HeroProps> = ({ setSearch, setCartOpen }) => {
+  const scrollToProducts = (): void => {
+    document.getElementById("products")?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
     <section
       id="home"
-      className="relative min-h-[650px] overflow-hidden bg-[#0b0618] px-5 py-20 md:px-10 lg:py-28"
+      className="relative overflow-hidden bg-[#0b0618] px-5 pb-16 pt-10"
     >
-      {/* Background Glow */}
+      <div className="pointer-events-none absolute left-1/4 top-10 h-96 w-96 rounded-full bg-purple-600/20 blur-[130px]" />
+      <div className="pointer-events-none absolute right-1/4 top-20 h-96 w-96 rounded-full bg-fuchsia-600/20 blur-[130px]" />
 
-      <div className="absolute -left-40 top-10 h-96 w-96 animate-pulse rounded-full bg-purple-600/20 blur-[120px]" />
+      <div className="relative z-10 mx-auto max-w-5xl text-center">
+        <span className="inline-block rounded-full border border-purple-500/20 bg-purple-500/10 px-5 py-2 text-xs font-bold uppercase tracking-[0.3em] text-purple-300">
+          ✦ NEW SEASON 2026
+        </span>
 
-      <div className="absolute -right-40 top-20 h-96 w-96 animate-pulse rounded-full bg-fuchsia-600/20 blur-[120px]" />
+        <h1 className="mt-6 text-4xl font-black leading-tight text-white md:text-7xl">
+          Elevate Your Everyday{" "}
+          <span className="bg-gradient-to-r from-purple-400 via-fuchsia-400 to-indigo-400 bg-clip-text text-transparent">
+            Fashion
+          </span>
+        </h1>
 
-      <div className="absolute bottom-[-150px] left-1/3 h-96 w-96 animate-pulse rounded-full bg-indigo-600/20 blur-[130px]" />
+        <p className="mx-auto mt-6 max-w-2xl text-sm leading-7 text-slate-400 md:text-lg">
+          Curated luxury apparel and accessories crafted for comfort, confidence
+          and timeless style.
+        </p>
 
-      {/* Grid */}
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+          <button
+            onClick={scrollToProducts}
+            className="rounded-xl bg-gradient-to-r from-purple-600 via-fuchsia-600 to-indigo-600 px-8 py-4 text-sm font-bold text-white shadow-xl shadow-purple-900/30 transition hover:scale-105"
+          >
+            Explore Collection →
+          </button>
 
-      <div
-        className="absolute inset-0 opacity-[0.05]"
-        style={{
-          backgroundImage:
-            "linear-gradient(#a855f7 1px, transparent 1px), linear-gradient(90deg, #a855f7 1px, transparent 1px)",
-          backgroundSize: "45px 45px",
-        }}
-      />
-
-      <div className="relative z-10 mx-auto grid max-w-7xl items-center gap-16 lg:grid-cols-2">
-
-        {/* LEFT */}
-
-        <div className="text-center lg:text-left">
-          <div className="mb-6 inline-flex animate-pulse rounded-full border border-purple-400/20 bg-purple-500/10 px-5 py-2 backdrop-blur-xl">
-            <span className="text-xs font-bold tracking-[0.25em] text-purple-300">
-              ✦ NEW COLLECTION 2026
-            </span>
-          </div>
-
-          <h1 className="text-5xl font-black leading-[1.05] tracking-tight text-white sm:text-6xl lg:text-7xl">
-            Upgrade Your
-
-            <span className="block bg-gradient-to-r from-purple-400 via-fuchsia-400 to-indigo-400 bg-clip-text text-transparent">
-              Everyday Style
-            </span>
-          </h1>
-
-          <p className="mx-auto mt-6 max-w-xl text-base leading-8 text-slate-400 md:text-lg lg:mx-0">
-            Discover premium fashion pieces designed for modern lifestyles.
-            Find your perfect style, explore new collections and shop with
-            confidence.
-          </p>
-
-          <div className="mt-9 flex flex-col justify-center gap-4 sm:flex-row lg:justify-start">
-            <button
-              onClick={scrollToProducts}
-              className="group relative overflow-hidden rounded-xl bg-gradient-to-r from-purple-600 via-fuchsia-600 to-indigo-600 px-8 py-4 text-sm font-bold text-white shadow-xl shadow-purple-900/30 transition duration-300 hover:-translate-y-1 hover:scale-105"
-            >
-              <span className="relative z-10">
-                Shop Collection →
-              </span>
-
-              <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition duration-700 group-hover:translate-x-full" />
-            </button>
-
-            <button
-              onClick={searchFashion}
-              className="rounded-xl border border-white/10 bg-white/5 px-8 py-4 text-sm font-bold text-slate-300 backdrop-blur-xl transition duration-300 hover:-translate-y-1 hover:border-purple-400/30 hover:bg-purple-500/10 hover:text-white"
-            >
-              Explore Collection
-            </button>
-          </div>
-
-          <div className="mx-auto mt-12 flex max-w-md justify-center divide-x divide-white/10 lg:mx-0 lg:justify-start">
-            <div className="px-5 text-center lg:text-left">
-              <h3 className="text-2xl font-black text-white">
-                10K+
-              </h3>
-
-              <p className="mt-1 text-xs text-slate-500">
-                Happy Customers
-              </p>
-            </div>
-
-            <div className="px-5 text-center lg:text-left">
-              <h3 className="text-2xl font-black text-white">
-                500+
-              </h3>
-
-              <p className="mt-1 text-xs text-slate-500">
-                Products
-              </p>
-            </div>
-
-            <div className="px-5 text-center lg:text-left">
-              <h3 className="text-2xl font-black text-white">
-                4.9
-              </h3>
-
-              <p className="mt-1 text-xs text-slate-500">
-                Rating
-              </p>
-            </div>
-          </div>
+          <button
+            onClick={() => setCartOpen(true)}
+            className="rounded-xl border border-white/10 bg-white/5 px-8 py-4 text-sm font-bold text-slate-300 transition hover:border-purple-400/30 hover:bg-purple-500/10 hover:text-white"
+          >
+            View Cart 🛒
+          </button>
         </div>
 
-        {/* RIGHT */}
-
-        <div className="relative mx-auto h-[450px] w-full max-w-lg">
-          <div className="absolute left-1/2 top-1/2 h-72 w-72 -translate-x-1/2 -translate-y-1/2 animate-pulse rounded-full bg-purple-600/30 blur-[100px]" />
-
-          <div className="absolute left-1/2 top-1/2 w-[280px] -translate-x-1/2 -translate-y-1/2 rotate-3 rounded-[30px] border border-white/10 bg-white/[0.06] p-3 shadow-2xl shadow-purple-950/50 backdrop-blur-2xl transition duration-500 hover:rotate-0 hover:scale-105">
-            <div className="relative h-[340px] overflow-hidden rounded-[22px] bg-gradient-to-br from-purple-900 via-[#24113d] to-fuchsia-950">
-              <img
-                src="https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?auto=format&fit=crop&w=700&q=80"
-                alt="Premium Fashion"
-                className="relative z-10 h-full w-full object-cover mix-blend-lighten transition duration-700 hover:scale-110"
-              />
-
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0b0618] via-transparent to-transparent" />
-
-              <div className="absolute bottom-5 left-5 z-20">
-                <p className="text-xs font-bold uppercase tracking-[0.2em] text-purple-300">
-                  Premium
-                </p>
-
-                <h3 className="mt-1 text-xl font-black text-white">
-                  Urban Collection
-                </h3>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between px-2 py-4">
-              <div>
-                <p className="text-xs text-slate-500">
-                  Starting from
-                </p>
-
-                <p className="text-xl font-black text-white">
-                  $49.99
-                </p>
-              </div>
-
-              <span className="rounded-full bg-purple-500/10 px-3 py-1 text-xs font-bold text-purple-300">
-                NEW
-              </span>
-            </div>
-          </div>
-
-          <div className="absolute left-0 top-20 animate-bounce rounded-2xl border border-white/10 bg-white/[0.06] px-5 py-4 shadow-xl backdrop-blur-xl [animation-duration:4s]">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-400">
-                ✓
-              </div>
-
-              <div>
-                <p className="text-xs text-slate-500">
-                  Quality
-                </p>
-
-                <p className="font-bold text-white">
-                  Premium
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="absolute bottom-16 right-0 animate-bounce rounded-2xl border border-white/10 bg-white/[0.06] px-5 py-4 shadow-xl backdrop-blur-xl [animation-duration:5s]">
-            <div className="flex items-center gap-3">
-              <div className="text-xl">
-                ⭐
-              </div>
-
-              <div>
-                <p className="text-xs text-slate-500">
-                  Customer Rating
-                </p>
-
-                <p className="font-bold text-white">
-                  4.9 / 5.0
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="absolute right-10 top-5 h-3 w-3 animate-ping rounded-full bg-purple-400" />
-
-          <div className="absolute bottom-10 left-10 h-2 w-2 animate-ping rounded-full bg-fuchsia-400 [animation-delay:1s]" />
+        {/* Quick Category Filter Tags */}
+        <div className="mt-10 flex flex-wrap items-center justify-center gap-2">
+          {["All", "men", "women", "kids"].map((cat) => (
+            <button
+              key={cat}
+              onClick={() => {
+                setSearch(cat === "All" ? "" : cat);
+                scrollToProducts();
+              }}
+              className="rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs font-semibold capitalize text-slate-400 transition hover:border-purple-500/40 hover:bg-purple-500/10 hover:text-purple-300"
+            >
+              {cat}
+            </button>
+          ))}
         </div>
       </div>
     </section>

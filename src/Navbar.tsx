@@ -1,6 +1,17 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
-const Navbar = ({
+interface NavbarProps {
+  cartCount: number;
+  favoriteCount: number;
+  search: string;
+  setSearch: React.Dispatch<React.SetStateAction<string>>;
+  cartOpen?: boolean;
+  setCartOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  mobileMenu: boolean;
+  setMobileMenu: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+const Navbar: React.FC<NavbarProps> = ({
   cartCount,
   favoriteCount,
   search,
@@ -9,11 +20,12 @@ const Navbar = ({
   mobileMenu,
   setMobileMenu,
 }) => {
-  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState<boolean>(false);
 
   useEffect(() => {
-    const closeSearch = (e) => {
-      if (!e.target.closest(".search-area")) {
+    const closeSearch = (e: MouseEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (!target?.closest(".search-area")) {
         setSearchOpen(false);
       }
     };
@@ -25,22 +37,16 @@ const Navbar = ({
     };
   }, []);
 
-  const scrollTo = (id) => {
-    document
-      .getElementById(id)
-      ?.scrollIntoView({ behavior: "smooth" });
-
+  const scrollTo = (id: string): void => {
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
     setMobileMenu(false);
   };
 
   return (
     <nav className="sticky top-0 z-50 px-4 py-4">
       <div className="mx-auto max-w-[90%]">
-
         <div className="relative flex items-center justify-between rounded-2xl border border-purple-500/20 bg-[#12091f]/95 px-5 py-4 shadow-xl shadow-purple-950/30 backdrop-blur-xl md:px-8">
-
           {/* LOGO */}
-
           <button
             onClick={() => scrollTo("home")}
             className="group flex items-center gap-3"
@@ -61,7 +67,6 @@ const Navbar = ({
           </button>
 
           {/* DESKTOP MENU */}
-
           <div className="hidden items-center gap-2 md:flex">
             <button
               onClick={() => scrollTo("home")}
@@ -93,14 +98,11 @@ const Navbar = ({
           </div>
 
           {/* RIGHT SIDE */}
-
           <div className="flex items-center gap-2">
-
             {/* SEARCH */}
-
             <div className="search-area relative">
               <button
-                onClick={(e) => {
+                onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                   e.stopPropagation();
                   setSearchOpen(!searchOpen);
                 }}
@@ -114,7 +116,15 @@ const Navbar = ({
                   <input
                     autoFocus
                     value={search}
-                    onChange={(e) => setSearch(e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      setSearch(e.target.value)
+                    }
+                    onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+                      if (e.key === "Enter") {
+                        scrollTo("products");
+                        setSearchOpen(false);
+                      }
+                    }}
                     placeholder="Search products..."
                     className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-600 focus:border-purple-500/50"
                   />
@@ -132,13 +142,12 @@ const Navbar = ({
             </div>
 
             {/* FAVORITE */}
-
             <button
               type="button"
+              onClick={() => scrollTo("products")}
               className="relative hidden h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-lg text-slate-400 transition hover:scale-110 hover:bg-pink-500/10 hover:text-pink-400 sm:flex"
             >
               ♡
-
               {favoriteCount > 0 && (
                 <span className="absolute -right-2 -top-2 flex h-5 min-w-5 items-center justify-center rounded-full border-2 border-[#12091f] bg-pink-500 px-1 text-[10px] font-black text-white">
                   {favoriteCount}
@@ -147,20 +156,17 @@ const Navbar = ({
             </button>
 
             {/* CART */}
-
             <button
               onClick={() => setCartOpen(true)}
               className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-purple-600 to-fuchsia-600 text-lg text-white shadow-lg shadow-purple-900/30 transition hover:scale-110 active:scale-95"
             >
               🛒
-
               <span className="absolute -right-2 -top-2 flex h-5 min-w-5 items-center justify-center rounded-full border-2 border-[#12091f] bg-white px-1 text-[10px] font-black text-purple-700">
                 {cartCount}
               </span>
             </button>
 
             {/* MOBILE BUTTON */}
-
             <button
               onClick={() => setMobileMenu(!mobileMenu)}
               className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-xl text-slate-300 transition hover:bg-purple-500/10 hover:text-purple-300 md:hidden"
@@ -170,7 +176,6 @@ const Navbar = ({
           </div>
 
           {/* MOBILE MENU */}
-
           {mobileMenu && (
             <div className="absolute left-0 right-0 top-[78px] rounded-2xl border border-purple-500/20 bg-[#12091f] p-4 shadow-2xl shadow-purple-950/50 md:hidden">
               <div className="grid gap-2">
@@ -207,7 +212,7 @@ const Navbar = ({
                     setCartOpen(true);
                     setMobileMenu(false);
                   }}
-                  className="mt-2 rounded-xl bg-gradient-to-r from-purple-600 to-fuchsia-600 px-4 py-3 text-sm font-bold"
+                  className="mt-2 rounded-xl bg-gradient-to-r from-purple-600 to-fuchsia-600 px-4 py-3 text-sm font-bold text-white"
                 >
                   Open Cart 🛒 ({cartCount})
                 </button>

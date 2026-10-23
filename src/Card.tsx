@@ -1,32 +1,57 @@
-import { useEffect, useState } from "react";
-import { toast } from "react-hot-toast";
+import React, { useEffect, useState } from "react";
 
-const Card = ({
+interface IProduct {
+  _id: string;
+  title: string;
+  category?: string;
+  brand?: string;
+  description?: string;
+  image: string;
+  isNew?: boolean;
+  type?: string;
+  size?: string[];
+  stock?: number | string;
+  price: number;
+  oldPrice?: number;
+  discountedPrice?: number;
+}
+
+interface CardProps {
+  search: string;
+  addToCart: (product: IProduct) => void;
+  toggleFavorite: (product: IProduct) => void;
+  favorites: IProduct[];
+  setSelectedProduct: React.Dispatch<React.SetStateAction<IProduct | null>>;
+}
+
+interface ProductsApiResponse {
+  data: IProduct[];
+}
+
+const Card: React.FC<CardProps> = ({
   search,
   addToCart,
   toggleFavorite,
   favorites,
   setSelectedProduct,
 }) => {
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [products, setProducts] = useState<IProduct[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string>("");
 
   useEffect(() => {
-    const getProducts = async () => {
+    const getProducts = async (): Promise<void> => {
       try {
         setLoading(true);
         setError("");
 
-        const res = await fetch(
-          "https://fakestoreapi.noksha.dev/api/products"
-        );
+        const res = await fetch("https://fakestoreapi.noksha.dev/api/products");
 
         if (!res.ok) {
           throw new Error("Failed to fetch products");
         }
 
-        const data = await res.json();
+        const data: ProductsApiResponse = await res.json();
 
         setProducts(data.data || []);
       } catch (err) {
@@ -40,7 +65,6 @@ const Card = ({
   }, []);
 
   // ================= SEARCH =================
-
   const filteredProducts = products.filter((product) => {
     const keyword = search.toLowerCase().trim();
 
@@ -55,17 +79,12 @@ const Card = ({
   });
 
   // ================= LOADING =================
-
   if (loading) {
     return (
-      <section
-        id="products"
-        className="min-h-screen bg-[#0b0618] px-5 py-20"
-      >
+      <section id="products" className="min-h-screen bg-[#0b0618] px-5 py-20">
         <div className="mx-auto max-w-7xl">
           <div className="mb-14 text-center">
             <div className="mx-auto h-5 w-48 animate-pulse rounded-full bg-purple-500/10" />
-
             <div className="mx-auto mt-5 h-12 max-w-md animate-pulse rounded-xl bg-white/5" />
           </div>
 
@@ -92,7 +111,6 @@ const Card = ({
   }
 
   // ================= ERROR =================
-
   if (error) {
     return (
       <section
@@ -100,21 +118,17 @@ const Card = ({
         className="flex min-h-[500px] items-center justify-center bg-[#0b0618] px-5"
       >
         <div className="text-center">
-          <div className="text-5xl">
-            ⚠️
-          </div>
+          <div className="text-5xl">⚠️</div>
 
           <h2 className="mt-5 text-2xl font-black text-white">
             Something went wrong
           </h2>
 
-          <p className="mt-3 text-slate-500">
-            {error}
-          </p>
+          <p className="mt-3 text-slate-500">{error}</p>
 
           <button
             onClick={() => window.location.reload()}
-            className="mt-6 rounded-xl bg-gradient-to-r from-purple-600 to-fuchsia-600 px-6 py-3 font-bold"
+            className="mt-6 rounded-xl bg-gradient-to-r from-purple-600 to-fuchsia-600 px-6 py-3 font-bold text-white"
           >
             Try Again
           </button>
@@ -129,11 +143,8 @@ const Card = ({
       className="relative min-h-screen overflow-hidden bg-[#0b0618] px-5 py-16"
     >
       {/* Background */}
-
       <div className="pointer-events-none absolute -left-32 -top-32 h-96 w-96 animate-pulse rounded-full bg-purple-600/20 blur-[120px]" />
-
       <div className="pointer-events-none absolute right-[-100px] top-[20%] h-96 w-96 animate-pulse rounded-full bg-fuchsia-600/20 blur-[130px]" />
-
       <div className="pointer-events-none absolute bottom-[-150px] left-[30%] h-96 w-96 animate-pulse rounded-full bg-indigo-600/20 blur-[130px]" />
 
       <div
@@ -145,12 +156,8 @@ const Card = ({
         }}
       />
 
-      <div
-        id="collection"
-        className="relative z-10 mx-auto max-w-7xl"
-      >
+      <div id="collection" className="relative z-10 mx-auto max-w-7xl">
         {/* HEADER */}
-
         <div className="mx-auto mb-14 max-w-3xl text-center">
           <div className="mb-4 inline-flex rounded-full border border-purple-400/20 bg-purple-500/10 px-5 py-2 backdrop-blur-xl">
             <span className="text-sm font-semibold tracking-[0.3em] text-purple-300">
@@ -166,12 +173,11 @@ const Card = ({
           </h1>
 
           <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-slate-400 md:text-base">
-            Explore our latest fashion collection with premium quality,
-            modern design and amazing prices.
+            Explore our latest fashion collection with premium quality, modern
+            design and amazing prices.
           </p>
 
           {/* SEARCH RESULT */}
-
           {search && (
             <div className="mt-5">
               <span className="rounded-full border border-purple-500/20 bg-purple-500/10 px-4 py-2 text-xs text-purple-300">
@@ -184,14 +190,11 @@ const Card = ({
         </div>
 
         {/* NO PRODUCT */}
-
         {filteredProducts.length === 0 ? (
           <div className="flex min-h-[300px] flex-col items-center justify-center text-center">
-            <div className="text-6xl">
-              🔎
-            </div>
+            <div className="text-6xl">🔎</div>
 
-            <h2 className="mt-5 text-2xl font-black">
+            <h2 className="mt-5 text-2xl font-black text-white">
               No products found
             </h2>
 
@@ -201,7 +204,6 @@ const Card = ({
           </div>
         ) : (
           /* PRODUCTS */
-
           <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {filteredProducts.map((product) => {
               const isFavorite = favorites.some(
@@ -214,11 +216,9 @@ const Card = ({
                   className="group relative overflow-hidden rounded-[28px] border border-white/[0.08] bg-white/[0.045] shadow-2xl shadow-purple-950/30 backdrop-blur-2xl transition-all duration-500 hover:-translate-y-4 hover:border-purple-400/40 hover:shadow-purple-500/20"
                 >
                   {/* Card Glow */}
-
                   <div className="absolute -right-20 -top-20 h-40 w-40 rounded-full bg-purple-500/10 blur-3xl transition-all duration-500 group-hover:bg-purple-500/30" />
 
                   {/* NEW */}
-
                   {product.isNew && (
                     <div className="absolute left-4 top-4 z-20 animate-pulse rounded-full border border-purple-300/30 bg-purple-500/20 px-4 py-1.5 text-xs font-bold text-purple-200 backdrop-blur-xl">
                       ✦ NEW
@@ -226,7 +226,6 @@ const Card = ({
                   )}
 
                   {/* FAVORITE */}
-
                   <button
                     onClick={() => toggleFavorite(product)}
                     className={`absolute right-4 top-4 z-30 flex h-10 w-10 items-center justify-center rounded-full border backdrop-blur-xl transition duration-300 ${
@@ -239,12 +238,11 @@ const Card = ({
                   </button>
 
                   {/* IMAGE */}
-
                   <div className="relative h-72 overflow-hidden bg-[#120b24]">
                     <img
                       src={product.image}
                       alt={product.title}
-                      className="h-full w-full object-cover transition-all duration-700 group-hover:scale-110 group-hover:rotate-1"
+                      className="h-full w-full object-cover transition-all duration-700 group-hover:rotate-1 group-hover:scale-110"
                     />
 
                     <div className="absolute inset-0 bg-gradient-to-t from-[#0b0618] via-transparent to-transparent" />
@@ -257,7 +255,6 @@ const Card = ({
                   </div>
 
                   {/* CONTENT */}
-
                   <div className="relative p-5">
                     <p className="mb-2 text-xs font-bold uppercase tracking-[0.2em] text-purple-400">
                       {product.brand || "VELORA"}
@@ -281,14 +278,14 @@ const Card = ({
                       </span>
                     </div>
 
-                    {product.size && (
+                    {product.size && product.size.length > 0 && (
                       <div className="mt-3 flex items-center justify-between">
                         <span className="text-xs uppercase tracking-wider text-slate-600">
                           Size
                         </span>
 
                         <span className="text-xs font-medium text-slate-300">
-                          {product.size?.join(" • ")}
+                          {product.size.join(" • ")}
                         </span>
                       </div>
                     )}
@@ -312,12 +309,9 @@ const Card = ({
                     <div className="my-5 h-px bg-gradient-to-r from-transparent via-purple-500/30 to-transparent" />
 
                     {/* PRICE */}
-
                     <div className="flex items-end justify-between">
                       <div>
-                        <p className="text-xs text-slate-600">
-                          Current Price
-                        </p>
+                        <p className="text-xs text-slate-600">Current Price</p>
 
                         <div className="mt-1 flex items-center gap-2">
                           <span className="text-2xl font-black text-white">
@@ -346,7 +340,6 @@ const Card = ({
                     </div>
 
                     {/* BUTTONS */}
-
                     <div className="mt-6 grid grid-cols-2 gap-2">
                       <button
                         onClick={() => setSelectedProduct(product)}
